@@ -1,0 +1,306 @@
+{
+  "stores": [
+    {
+      "store_id": "store_1",
+      "name": "Store 1",
+      "location": "Brigade Bangalore",
+      "city": "Bangalore",
+      "address": "Brigade Road, Bengaluru, Karnataka 560001",
+      "open_time": "2026-04-10T06:30:00Z",
+      "close_time": "2026-04-10T16:09:00Z",
+      "cameras": [
+        {
+          "camera_id": "CAM_ENTRY_01",
+          "type": "entry_exit",
+          "description": "Main entrance/exit threshold — primary for direction detection",
+          "filename": "CAM 1.mp4"
+        },
+        {
+          "camera_id": "CAM_FLOOR_01",
+          "type": "floor",
+          "description": "Main floor coverage — overlaps with entry camera at Brigade Rd",
+          "filename": "CAM 2.mp4"
+        },
+        {
+          "camera_id": "CAM_BILLING_01",
+          "type": "billing",
+          "description": "Billing counter and queue area",
+          "filename": "CAM 5.mp4"
+        }
+      ],
+      "zones": [
+        {
+          "zone_id": "MAKEUP",
+          "name": "Makeup & Colour",
+          "dep_name": "makeup",
+          "polygon": [
+            [0.0, 0.0],
+            [0.4, 0.0],
+            [0.4, 0.5],
+            [0.0, 0.5]
+          ]
+        },
+        {
+          "zone_id": "SKINCARE",
+          "name": "Skincare & Treatments",
+          "dep_name": "skin",
+          "polygon": [
+            [0.4, 0.0],
+            [0.8, 0.0],
+            [0.8, 0.5],
+            [0.4, 0.5]
+          ]
+        },
+        {
+          "zone_id": "BATH_BODY",
+          "name": "Bath & Body",
+          "dep_name": "bath-and-body",
+          "polygon": [
+            [0.0, 0.5],
+            [0.3, 0.5],
+            [0.3, 0.85],
+            [0.0, 0.85]
+          ]
+        },
+        {
+          "zone_id": "HAIR",
+          "name": "Hair Care",
+          "dep_name": "hair",
+          "polygon": [
+            [0.3, 0.5],
+            [0.6, 0.5],
+            [0.6, 0.85],
+            [0.3, 0.85]
+          ]
+        },
+        {
+          "zone_id": "FRAGRANCE",
+          "name": "Fragrance",
+          "dep_name": "fragrance",
+          "polygon": [
+            [0.6, 0.5],
+            [0.8, 0.5],
+            [0.8, 0.85],
+            [0.6, 0.85]
+          ]
+        },
+        {
+          "zone_id": "PERSONAL_CARE",
+          "name": "Personal Care",
+          "dep_name": "personal-care",
+          "polygon": [
+            [0.8, 0.0],
+            [1.0, 0.0],
+            [1.0, 0.85],
+            [0.8, 0.85]
+          ]
+        },
+        {
+          "zone_id": "BILLING",
+          "name": "Billing Counter",
+          "dep_name": null,
+          "polygon": [
+            [0.0, 0.85],
+            [1.0, 0.85],
+            [1.0, 1.0],
+            [0.0, 1.0]
+          ]
+        }
+      ],
+      "store_facts": {
+        "pos_store_id": "ST1008",
+        "operating_date": "2026-04-10",
+        "first_transaction_ist": "12:15",
+        "last_transaction_ist": "21:39",
+        "total_orders": 24,
+        "total_gmv_inr": 44920,
+        "staff": [
+          {
+            "name": "kasthuri v",
+            "employee_code": "CL2063",
+            "salesperson_id": 1178
+          },
+          {
+            "name": "Zufishan Khazra",
+            "employee_code": "CL2727",
+            "salesperson_id": 971
+          },
+          {
+            "name": "Shashikala .",
+            "employee_code": "CL1997",
+            "salesperson_id": 523
+          },
+          {
+            "name": "Naziya Begum",
+            "employee_code": "CL2541",
+            "salesperson_id": 737
+          },
+          {
+            "name": "Priya v",
+            "employee_code": "CL2680",
+            "salesperson_id": 1190
+          }
+        ],
+        "active_promotions": [
+          "Buy 2 Get 1 on PB",
+          "Buy 2 Get 2 on Sheet Mask",
+          "Buy 2 Get 1 Faces and Ny bae",
+          "FLAT 40% OFF ON NON USM-1",
+          "Buy 1 @ 10% Foxtale Event",
+          "B2@15% off Maybelline-BAU"
+        ]
+      }
+    },
+    {
+      "store_id": "store_2",
+      "name": "Store 2",
+      "location": "Colaba Mumbai",
+      "city": "Mumbai",
+      "address": "Colaba Causeway, Mumbai, Maharashtra 400001",
+      "open_time": "2026-04-10T06:30:00Z",
+      "close_time": "2026-04-10T16:09:00Z",
+      "cameras": [
+        {
+          "camera_id": "CAM_ENTRY_02",
+          "type": "entry_exit",
+          "description": "Main entrance/exit threshold — primary for direction detection",
+          "filename": "CAM 1_MUM.mp4"
+        },
+        {
+          "camera_id": "CAM_FLOOR_02",
+          "type": "floor",
+          "description": "Main floor coverage — overlaps with entry camera at Colaba Causeway",
+          "filename": "CAM 2_MUM.mp4"
+        },
+        {
+          "camera_id": "CAM_BILLING_02",
+          "type": "billing",
+          "description": "Billing counter and queue area",
+          "filename": "CAM 5_MUM.mp4"
+        }
+      ],
+      "zones": [
+        {
+          "zone_id": "MAKEUP",
+          "name": "Makeup & Colour",
+          "dep_name": "makeup",
+          "polygon": [
+            [0.0, 0.0],
+            [0.4, 0.0],
+            [0.4, 0.5],
+            [0.0, 0.5]
+          ]
+        },
+        {
+          "zone_id": "SKINCARE",
+          "name": "Skincare & Treatments",
+          "dep_name": "skin",
+          "polygon": [
+            [0.4, 0.0],
+            [0.8, 0.0],
+            [0.8, 0.5],
+            [0.4, 0.5]
+          ]
+        },
+        {
+          "zone_id": "BATH_BODY",
+          "name": "Bath & Body",
+          "dep_name": "bath-and-body",
+          "polygon": [
+            [0.0, 0.5],
+            [0.3, 0.5],
+            [0.3, 0.85],
+            [0.0, 0.85]
+          ]
+        },
+        {
+          "zone_id": "HAIR",
+          "name": "Hair Care",
+          "dep_name": "hair",
+          "polygon": [
+            [0.3, 0.5],
+            [0.6, 0.5],
+            [0.6, 0.85],
+            [0.3, 0.85]
+          ]
+        },
+        {
+          "zone_id": "FRAGRANCE",
+          "name": "Fragrance",
+          "dep_name": "fragrance",
+          "polygon": [
+            [0.6, 0.5],
+            [0.8, 0.5],
+            [0.8, 0.85],
+            [0.6, 0.85]
+          ]
+        },
+        {
+          "zone_id": "PERSONAL_CARE",
+          "name": "Personal Care",
+          "dep_name": "personal-care",
+          "polygon": [
+            [0.8, 0.0],
+            [1.0, 0.0],
+            [1.0, 0.85],
+            [0.8, 0.85]
+          ]
+        },
+        {
+          "zone_id": "BILLING",
+          "name": "Billing Counter",
+          "dep_name": null,
+          "polygon": [
+            [0.0, 0.85],
+            [1.0, 0.85],
+            [1.0, 1.0],
+            [0.0, 1.0]
+          ]
+        }
+      ],
+      "store_facts": {
+        "pos_store_id": "ST2001",
+        "operating_date": "2026-04-10",
+        "first_transaction_ist": "12:30",
+        "last_transaction_ist": "21:15",
+        "total_orders": 32,
+        "total_gmv_inr": 68450,
+        "staff": [
+          {
+            "name": "Aarav Sharma",
+            "employee_code": "CL2801",
+            "salesperson_id": 2001
+          },
+          {
+            "name": "Ishita Patel",
+            "employee_code": "CL2802",
+            "salesperson_id": 2002
+          },
+          {
+            "name": "Rohan Deshmukh",
+            "employee_code": "CL2803",
+            "salesperson_id": 2003
+          },
+          {
+            "name": "Ananya Sen",
+            "employee_code": "CL2804",
+            "salesperson_id": 2004
+          },
+          {
+            "name": "Kabir Sen",
+            "employee_code": "CL2805",
+            "salesperson_id": 2005
+          }
+        ],
+        "active_promotions": [
+          "Buy 2 Get 1 on PB",
+          "Buy 2 Get 2 on Sheet Mask",
+          "Buy 2 Get 1 Faces and Ny bae",
+          "FLAT 40% OFF ON NON USM-1",
+          "Buy 1 @ 10% Foxtale Event",
+          "B2@15% off Maybelline-BAU"
+        ]
+      }
+    }
+  ]
+}

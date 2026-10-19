@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "ignoreDeprecations": ["6.0"]
+  },
+  "include": ["app", "hooks", "*.js"]
+}

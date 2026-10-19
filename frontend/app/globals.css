@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-primary: #08090d;
+  --bg-secondary: rgba(17, 19, 31, 0.65);
+  --bg-sidebar: rgba(12, 14, 23, 0.85);
+  --border-color: rgba(255, 255, 255, 0.06);
+  --border-glow: rgba(168, 85, 247, 0.15);
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  
+  --purple-glow: rgba(168, 85, 247, 0.4);
+  --crimson-glow: rgba(239, 68, 68, 0.45);
+  --amber-glow: rgba(245, 158, 11, 0.4);
+  
+  --accent-purple: #a855f7;
+  --accent-indigo: #6366f1;
+  --accent-blue: #3b82f6;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-rose: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.07) 0px, transparent 50%),
+    radial-gradient(at 50% 0%, rgba(168, 85, 247, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(239, 68, 68, 0.03) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Glassmorphic Panel Base */
+.glass-panel {
+  background: var(--bg-secondary);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.07), transparent);
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.04);
+}
+
+/* Title & Headers */
+h1, h2, h3, h4 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Glowing text effects */
+.glow-purple {
+  text-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+}
+.glow-rose {
+  text-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+}
+
+/* Keyframe Animations */
+@keyframes pulse-border-red {
+  0% {
+    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.85);
+    box-shadow: 0 0 15px 2px rgba(239, 68, 68, 0.4);
+  }
+  100% {
+    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2);
+  }
+}
+
+@keyframes pulse-border-orange {
+  0% {
+    border-color: rgba(245, 158, 11, 0.3);
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.2);
+  }
+  50% {
+    border-color: rgba(245, 158, 11, 0.8);
+    box-shadow: 0 0 12px 2px rgba(245, 158, 11, 0.35);
+  }
+  100% {
+    border-color: rgba(245, 158, 11, 0.3);
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.2);
+  }
+}
+
+@keyframes pulse-fill-purple {
+  0% { fill-opacity: 0.15; }
+  50% { fill-opacity: 0.35; }
+  100% { fill-opacity: 0.15; }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Custom interactive map styles */
+.map-zone {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.map-zone:hover {
+  fill-opacity: 0.45;
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 8px var(--purple-glow));
+}
+
+.map-zone.active-anomaly-critical {
+  animation: pulse-border-red 2s infinite ease-in-out;
+  stroke: var(--accent-rose) !important;
+  stroke-width: 2.5px !important;
+}
+
+.map-zone.active-anomaly-warn {
+  animation: pulse-border-orange 2.2s infinite ease-in-out;
+  stroke: var(--accent-amber) !important;
+  stroke-width: 2.5px !important;
+}
+
+.map-zone-congested {
+  animation: pulse-border-red 1.2s infinite ease-in-out !important;
+  stroke: var(--accent-rose) !important;
+  stroke-width: 3px !important;
+}
+
+.map-zone-hotspot {
+  stroke: var(--accent-amber) !important;
+  stroke-width: 2.5px !important;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)) !important;
+}
+
+.map-zone-dead {
+  fill: #374151 !important;
+  fill-opacity: 0.25 !important;
+  stroke: rgba(156, 163, 175, 0.2) !important;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-purple);
+}
+
+/* Slide in rows */
+.animate-slide {
+  animation: slide-in 0.35s ease-out forwards;
+}
+
+/* Modern inputs and buttons */
+select {
+  font-family: inherit;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+  padding-right: 36px !important;
+}
+
+select:focus, button:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+}
+
+button {
+  font-family: inherit;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0px);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-critical {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.badge-warn {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fde047;
+}
+
+.badge-info {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+
+.badge-ok {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #a7f3d0;
+}

@@ -1,0 +1,46 @@
+const getBackend = () => process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://visionretail-iq.onrender.com';
+
+export async function GET(request, { params }) {
+  const BACKEND = getBackend();
+  try {
+    const subpath = params.path.join('/');
+    const { searchParams } = new URL(request.url);
+    const url = `${BACKEND}/ai/${subpath}?${searchParams}`;
+    
+    const res = await fetch(url, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(15000)
+    });
+    
+    const data = await res.json();
+    return Response.json(data, { status: res.status });
+  } catch (err) {
+    console.error(`AI Proxy GET error for ${params.path.join('/')}:`, err.message);
+    return Response.json({ error: 'backend_unavailable', detail: err.message }, { status: 503 });
+  }
+}
+
+export async function POST(request, { params }) {
+  const BACKEND = getBackend();
+  try {
+    const subpath = params.path.join('/');
+    const { searchParams } = new URL(request.url);
+    const url = `${BACKEND}/ai/${subpath}?${searchParams}`;
+    const body = await request.json();
+    
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(15000)
+    });
+    
+    const data = await res.json();
+    return Response.json(data, { status: res.status });
+  } catch (err) {
+    console.error(`AI Proxy POST error for ${params.path.join('/')}:`, err.message);
+    return Response.json({ error: 'backend_unavailable', detail: err.message }, { status: 503 });
+  }
+}
