@@ -56,6 +56,32 @@ def load_pos_data(csv_path: str) -> list:
     return records
 
 
+def zones_for_camera(store_config: dict, camera_id: str) -> dict:
+    """Zone polygons that apply to one camera.
+
+    A zone with a `camera_id` is only tested against that camera's frames
+    (needed once several cameras / floors see different parts of the store).
+    A zone without `camera_id` applies to every camera (legacy layout).
+    """
+    return {
+        z["zone_id"]: z["polygon"]
+        for z in store_config.get("zones", [])
+        if z.get("camera_id") in (None, camera_id)
+    }
+
+
+def foot_to_plan(homography, fx: float, fy: float):
+    """Project a normalised image point (person's feet) to floor-plan coords
+    (0-1) with a 3x3 homography. Returns None when no calibration exists."""
+    if not homography:
+        return None
+    H = np.array(homography, dtype=np.float64)
+    v = H @ np.array([fx, fy, 1.0])
+    if abs(v[2]) < 1e-9:
+        return None
+    return [round(float(v[0] / v[2]), 4), round(float(v[1] / v[2]), 4)]
+
+
 def get_zone_for_point(cx: float, cy: float, zone_polygons: dict):
     for zone_id, polygon in zone_polygons.items():
         pts = np.array([[p[0], p[1]] for p in polygon], dtype=np.float32)
@@ -68,8 +94,17 @@ def get_zone_for_point(cx: float, cy: float, zone_polygons: dict):
 def process_single_clip(
     cap, model, tracker, staff_clf, deduplicator, pos_correlator,
     emitter, camera_id, store_id, zone_polygons, fps, clip_start,
-    is_entry: bool = False
+    is_entry: bool = False,
+    live: bool = False,
+    lock=None,
+    floor=None,
+    homography=None,
 ):
+    """live=True: `cap` is a stream.LiveStream already throttled to the target
+    fps; timestamps come from the wall clock. `lock` serialises access to the
+    shared tracker / classifier / emitter when several cameras run in threads."""
+    import contextlib
+    guard = lock if lock is not None else contextlib.nullcontext()
     dir_detector = DirectionDetector(tripwire_y=0.5, min_frames=5)
     frame_idx = 0
     PROCESS_EVERY_N = 3  # Process every 3rd frame for speed vs accuracy
@@ -79,11 +114,14 @@ def process_single_clip(
         if not ret:
             break
         frame_idx += 1
-        if frame_idx % PROCESS_EVERY_N != 0:
+        if not live and frame_idx % PROCESS_EVERY_N != 0:
             continue
 
-        offset_seconds = frame_idx / fps
-        frame_time = clip_start + timedelta(seconds=offset_seconds)
+        if live:
+            frame_time = datetime.now(timezone.utc)
+        else:
+            offset_seconds = frame_idx / fps
+            frame_time = clip_start + timedelta(seconds=offset_seconds)
         timestamp = frame_time.strftime("%Y-%m-%dT%H:%M:%SZ")
         h, w = frame.shape[:2]
 
@@ -104,97 +142,103 @@ def process_single_clip(
         if results[0].boxes is None or results[0].boxes.id is None:
             continue
 
-        boxes = results[0].boxes
+        with guard:
+            boxes = results[0].boxes
 
-        for box, track_id, conf in zip(
-            boxes.xyxyn.cpu().numpy(),
-            boxes.id.cpu().numpy().astype(int),
-            boxes.conf.cpu().numpy()
-        ):
-            track_id = int(track_id)
-            bbox_norm = box.tolist()
+            for box, track_id, conf in zip(
+                boxes.xyxyn.cpu().numpy(),
+                boxes.id.cpu().numpy().astype(int),
+                boxes.conf.cpu().numpy()
+            ):
+                track_id = int(track_id)
+                bbox_norm = box.tolist()
 
-            if deduplicator.is_duplicate(track_id, camera_id, frame_time):
-                continue
+                if deduplicator.is_duplicate(track_id, camera_id, frame_time):
+                    continue
 
-            x1 = int(box[0] * w)
-            y1 = int(box[1] * h)
-            x2 = int(box[2] * w)
-            y2 = int(box[3] * h)
-            person_crop = frame[max(0, y1):y2, max(0, x1):x2]
+                x1 = int(box[0] * w)
+                y1 = int(box[1] * h)
+                x2 = int(box[2] * w)
+                y2 = int(box[3] * h)
+                person_crop = frame[max(0, y1):y2, max(0, x1):x2]
 
-            is_staff = staff_clf.classify(person_crop, bbox_norm, track_id=track_id)
+                is_staff = staff_clf.classify(person_crop, bbox_norm, track_id=track_id)
 
-            visitor_id, event_types = tracker.update(
-                track_id=track_id,
-                bbox=bbox_norm,
-                camera_id=camera_id,
-                timestamp=frame_time,
-                is_entry_camera=is_entry
-            )
+                visitor_id, event_types = tracker.update(
+                    track_id=track_id,
+                    bbox=bbox_norm,
+                    camera_id=camera_id,
+                    timestamp=frame_time,
+                    is_entry_camera=is_entry
+                )
 
-            # Direction detection — only on entry camera
-            if is_entry:
-                direction = dir_detector.update(track_id, bbox_norm, frame_time)
-                if direction == "EXIT":
-                    tracker.register_exit(track_id, frame_time, camera_id)
-                    if "EXIT" not in event_types:
-                        event_types.append("EXIT")
+                # Direction detection — only on entry camera
+                if is_entry:
+                    direction = dir_detector.update(track_id, bbox_norm, frame_time)
+                    if direction == "EXIT":
+                        tracker.register_exit(track_id, frame_time, camera_id)
+                        if "EXIT" not in event_types:
+                            event_types.append("EXIT")
 
-            cx = (box[0] + box[2]) / 2
-            cy = (box[1] + box[3]) / 2
-            current_zone = get_zone_for_point(cx, cy, zone_polygons)
+                cx = (box[0] + box[2]) / 2
+                cy = (box[1] + box[3]) / 2
+                current_zone = get_zone_for_point(cx, cy, zone_polygons)
 
-            # Update zone transitions
-            zone_events = tracker.update_zone(track_id, current_zone, frame_time)
-            event_types.extend(zone_events)
+                # Update zone transitions
+                zone_events = tracker.update_zone(track_id, current_zone, frame_time)
+                event_types.extend(zone_events)
 
-            # Billing queue logic
-            if current_zone == "BILLING":
-                queue_depth = tracker.get_billing_queue_depth(camera_id, frame_time)
-                if "ZONE_ENTER" in zone_events:
-                    if queue_depth > 0:
-                        event_types.append("BILLING_QUEUE_JOIN")
-                        tracker.add_to_billing_queue(camera_id, visitor_id)
-                elif "ZONE_EXIT" in zone_events:
-                    # Check if they abandoned (no POS transaction in 5 min)
-                    if not pos_correlator.has_transaction_in_window(
-                        zone_id=current_zone,
-                        timestamp=frame_time,
-                        window_minutes=5
-                    ):
-                        event_types.append("BILLING_QUEUE_ABANDON")
-                    tracker.remove_from_billing_queue(camera_id, visitor_id)
+                # Billing queue logic
+                if current_zone == "BILLING":
+                    queue_depth = tracker.get_billing_queue_depth(camera_id, frame_time)
+                    if "ZONE_ENTER" in zone_events:
+                        if queue_depth > 0:
+                            event_types.append("BILLING_QUEUE_JOIN")
+                            tracker.add_to_billing_queue(camera_id, visitor_id)
+                    elif "ZONE_EXIT" in zone_events:
+                        # Check if they abandoned (no POS transaction in 5 min)
+                        if not pos_correlator.has_transaction_in_window(
+                            zone_id=current_zone,
+                            timestamp=frame_time,
+                            window_minutes=5
+                        ):
+                            event_types.append("BILLING_QUEUE_ABANDON")
+                        tracker.remove_from_billing_queue(camera_id, visitor_id)
 
-            for event_type in event_types:
-                dwell_ms = 0
-                metadata = {
-                    "queue_depth": None,
-                    "sku_zone": current_zone,
-                    "session_seq": tracker.get_session_seq(visitor_id)
-                }
+                for event_type in event_types:
+                    dwell_ms = 0
+                    metadata = {
+                        "queue_depth": None,
+                        "sku_zone": current_zone,
+                        "session_seq": tracker.get_session_seq(visitor_id)
+                    }
+                    if floor is not None:
+                        metadata["floor"] = str(floor)
+                    plan_xy = foot_to_plan(homography, float(cx), float(box[3]))
+                    if plan_xy:
+                        metadata["plan_x"], metadata["plan_y"] = plan_xy
 
-                if event_type == "ZONE_DWELL":
-                    dwell_ms = tracker.get_dwell_ms(visitor_id, current_zone)
+                    if event_type == "ZONE_DWELL":
+                        dwell_ms = tracker.get_dwell_ms(visitor_id, current_zone)
 
-                if event_type == "BILLING_QUEUE_JOIN":
-                    metadata["queue_depth"] = tracker.get_billing_queue_depth(
-                        camera_id, frame_time
-                    )
+                    if event_type == "BILLING_QUEUE_JOIN":
+                        metadata["queue_depth"] = tracker.get_billing_queue_depth(
+                            camera_id, frame_time
+                        )
 
-                emitter.emit({
-                    "event_id": str(uuid.uuid4()),
-                    "store_id": store_id,
-                    "camera_id": camera_id,
-                    "visitor_id": visitor_id,
-                    "event_type": event_type,
-                    "timestamp": timestamp,
-                    "zone_id": current_zone if event_type not in ("ENTRY", "EXIT") else None,
-                    "dwell_ms": dwell_ms,
-                    "is_staff": is_staff,
-                    "confidence": float(conf),
-                    "metadata": metadata
-                })
+                    emitter.emit({
+                        "event_id": str(uuid.uuid4()),
+                        "store_id": store_id,
+                        "camera_id": camera_id,
+                        "visitor_id": visitor_id,
+                        "event_type": event_type,
+                        "timestamp": timestamp,
+                        "zone_id": current_zone if event_type not in ("ENTRY", "EXIT") else None,
+                        "dwell_ms": dwell_ms,
+                        "is_staff": is_staff,
+                        "confidence": float(conf),
+                        "metadata": metadata
+                    })
 
 
 def process_store_clips(
@@ -227,11 +271,6 @@ def process_store_clips(
 
     camera_order = [c["camera_id"] for c in store_config.get("cameras", [])]
     _cam_map = {c["camera_id"]: c for c in store_config.get("cameras", [])}
-    zone_polygons = {
-        z["zone_id"]: z["polygon"]
-        for z in store_config.get("zones", [])
-    }
-
     for camera_id in camera_order:
         cam_cfg = _cam_map.get(camera_id, {})
         filename = cam_cfg.get("filename", f"{camera_id}.mp4")
@@ -281,6 +320,7 @@ def process_store_clips(
             print(f"[WARN] Clip not found: {clip_path} (camera={camera_id}) — skipping")
             continue
 
+        zone_polygons = zones_for_camera(store_config, camera_id)
         cap = cv2.VideoCapture(str(clip_path))
         fps = cap.get(cv2.CAP_PROP_FPS) or 15.0
         store_open = store_config.get("open_time", "2026-04-10T06:30:00Z")
@@ -294,7 +334,9 @@ def process_store_clips(
             deduplicator=deduplicator, pos_correlator=pos_correlator,
             emitter=emitter, camera_id=camera_id, store_id=store_id,
             zone_polygons=zone_polygons, fps=fps, clip_start=clip_start,
-            is_entry=is_entry
+            is_entry=is_entry,
+            floor=cam_cfg.get("floor"),
+            homography=cam_cfg.get("homography"),
         )
         cap.release()
 

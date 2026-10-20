@@ -1,0 +1,486 @@
+{
+  "stores": [
+    {
+      "store_id": "clothing_1",
+      "name": "Clothing Store",
+      "location": "Main Street",
+      "city": "Tehran",
+      "open_time": "2026-01-01T05:30:00Z",
+      "close_time": "2026-01-01T17:30:00Z",
+      "floor_plans": {
+        "1": {
+          "label": "Ground floor",
+          "image": null
+        },
+        "2": {
+          "label": "First floor",
+          "image": null
+        }
+      },
+      "cameras": [
+        {
+          "camera_id": "CAM_ENTRY_01",
+          "type": "entry_exit",
+          "floor": "1",
+          "source": "rtsp://admin:${CAM_ENTRY_01_PASS}@192.168.1.101:554/stream1",
+          "process_fps": 3,
+          "description": "Front door"
+        },
+        {
+          "camera_id": "CAM_FLOOR_01",
+          "type": "floor",
+          "floor": "1",
+          "source": "rtsp://admin:${CAM_FLOOR_01_PASS}@192.168.1.102:554/stream1",
+          "process_fps": 3,
+          "description": "Ground-floor racks"
+        },
+        {
+          "camera_id": "CAM_BILLING_01",
+          "type": "billing",
+          "floor": "1",
+          "source": "rtsp://admin:${CAM_BILLING_01_PASS}@192.168.1.103:554/stream1",
+          "process_fps": 3,
+          "description": "Cash desk"
+        },
+        {
+          "camera_id": "CAM_FLOOR_02",
+          "type": "floor",
+          "floor": "2",
+          "source": "rtsp://admin:${CAM_FLOOR_02_PASS}@192.168.1.104:554/stream1",
+          "process_fps": 3,
+          "description": "First-floor racks"
+        },
+        {
+          "camera_id": "CAM_FITTING_02",
+          "type": "floor",
+          "floor": "2",
+          "source": "rtsp://admin:${CAM_FITTING_02_PASS}@192.168.1.105:554/stream1",
+          "process_fps": 3,
+          "description": "Fitting-room corridor"
+        }
+      ],
+      "zones": [
+        {
+          "zone_id": "NEW_ARRIVALS",
+          "name": "New arrivals",
+          "floor": "1",
+          "camera_id": "CAM_FLOOR_01",
+          "polygon": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.35,
+              0.0
+            ],
+            [
+              0.35,
+              0.45
+            ],
+            [
+              0.0,
+              0.45
+            ]
+          ],
+          "plan_polygon": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.35,
+              0.0
+            ],
+            [
+              0.35,
+              0.45
+            ],
+            [
+              0.0,
+              0.45
+            ]
+          ]
+        },
+        {
+          "zone_id": "WOMEN_RACK_A",
+          "name": "Women - rack A",
+          "floor": "1",
+          "camera_id": "CAM_FLOOR_01",
+          "polygon": [
+            [
+              0.35,
+              0.0
+            ],
+            [
+              0.7,
+              0.0
+            ],
+            [
+              0.7,
+              0.45
+            ],
+            [
+              0.35,
+              0.45
+            ]
+          ],
+          "plan_polygon": [
+            [
+              0.35,
+              0.0
+            ],
+            [
+              0.7,
+              0.0
+            ],
+            [
+              0.7,
+              0.45
+            ],
+            [
+              0.35,
+              0.45
+            ]
+          ]
+        },
+        {
+          "zone_id": "WOMEN_RACK_B",
+          "name": "Women - rack B",
+          "floor": "1",
+          "camera_id": "CAM_FLOOR_01",
+          "polygon": [
+            [
+              0.7,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.45
+            ],
+            [
+              0.7,
+              0.45
+            ]
+          ],
+          "plan_polygon": [
+            [
+              0.7,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.45
+            ],
+            [
+              0.7,
+              0.45
+            ]
+          ]
+        },
+        {
+          "zone_id": "MEN_RACK_A",
+          "name": "Men - rack A",
+          "floor": "1",
+          "camera_id": "CAM_FLOOR_01",
+          "polygon": [
+            [
+              0.0,
+              0.5
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              0.5,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ],
+          "plan_polygon": [
+            [
+              0.0,
+              0.5
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              0.5,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        {
+          "zone_id": "SALE",
+          "name": "Sale section",
+          "floor": "1",
+          "camera_id": "CAM_FLOOR_01",
+          "polygon": [
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1.0,
+              0.5
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.5,
+              1.0
+            ]
+          ],
+          "plan_polygon": [
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1.0,
+              0.5
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.5,
+              1.0
+            ]
+          ]
+        },
+        {
+          "zone_id": "BILLING",
+          "name": "Checkout",
+          "floor": "1",
+          "camera_id": "CAM_BILLING_01",
+          "polygon": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ],
+          "plan_polygon": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        {
+          "zone_id": "KIDS",
+          "name": "Kids",
+          "floor": "2",
+          "camera_id": "CAM_FLOOR_02",
+          "polygon": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.4,
+              0.0
+            ],
+            [
+              0.4,
+              0.6
+            ],
+            [
+              0.0,
+              0.6
+            ]
+          ],
+          "plan_polygon": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.4,
+              0.0
+            ],
+            [
+              0.4,
+              0.6
+            ],
+            [
+              0.0,
+              0.6
+            ]
+          ]
+        },
+        {
+          "zone_id": "WOMEN_RACK_C",
+          "name": "Women - rack C",
+          "floor": "2",
+          "camera_id": "CAM_FLOOR_02",
+          "polygon": [
+            [
+              0.4,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.6
+            ],
+            [
+              0.4,
+              0.6
+            ]
+          ],
+          "plan_polygon": [
+            [
+              0.4,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.6
+            ],
+            [
+              0.4,
+              0.6
+            ]
+          ]
+        },
+        {
+          "zone_id": "ACCESSORIES",
+          "name": "Accessories",
+          "floor": "2",
+          "camera_id": "CAM_FLOOR_02",
+          "polygon": [
+            [
+              0.0,
+              0.6
+            ],
+            [
+              1.0,
+              0.6
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ],
+          "plan_polygon": [
+            [
+              0.0,
+              0.6
+            ],
+            [
+              1.0,
+              0.6
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        {
+          "zone_id": "FITTING_ROOM",
+          "name": "Fitting rooms",
+          "floor": "2",
+          "camera_id": "CAM_FITTING_02",
+          "polygon": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ],
+          "plan_polygon": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

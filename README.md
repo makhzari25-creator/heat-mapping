@@ -3,6 +3,8 @@
 
 ---
 
+> فروشگاه لباس (RTSP زنده، دو طبقه، ابزار ROI): [docs/CLOTHING_STORE_GUIDE.md](docs/CLOTHING_STORE_GUIDE.md)
+
 # VisionRetail IQ — AI Retail Operating System
 
 > **VisionRetail IQ** transforms raw CCTV footage into real-time retail intelligence, enabling store operators to understand customer behavior, optimize operations, reduce revenue leakage, and improve in-store conversion.

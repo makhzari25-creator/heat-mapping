@@ -11,6 +11,24 @@ from datetime import date
 
 router = APIRouter()
 
+
+def _layout_zones(store_id: str):
+    """Zones (id, name, floor) for a store from store_layout.json.
+    Falls back to the built-in ZONE_NAMES when the layout has no zones."""
+    import json
+    from config_router import CONFIG_PATH
+    try:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            layout = json.load(f)
+        store = next((s for s in layout.get("stores", []) if s.get("store_id") == store_id), None)
+        zones = [(z["zone_id"], z.get("name", z["zone_id"]), z.get("floor"))
+                 for z in (store or {}).get("zones", [])]
+        if zones:
+            return zones
+    except Exception:
+        pass
+    return [(zid, name, None) for zid, name in ZONE_NAMES.items()]
+
 ZONE_NAMES = {
     "MAKEUP": "Makeup & Colour",
     "SKINCARE": "Skincare & Treatments",
@@ -26,6 +44,7 @@ ZONE_NAMES = {
 async def get_heatmap(
     store_id: str,
     date_str: str = None,
+    floor: str = None,
     db: AsyncSession = Depends(get_db)
 ):
     target_date = date_str or date.today().isoformat()
@@ -92,17 +111,24 @@ async def get_heatmap(
     )
 
     # Compute max visits for normalised visit frequency calculation
+    layout_zones = _layout_zones(store_id)
+    all_floors = sorted({str(f) for _, _, f in layout_zones if f is not None})
+    if floor is not None:
+        layout_zones = [z for z in layout_zones if str(z[2]) == str(floor)]
+    zone_names = {zid: name for zid, name, _ in layout_zones}
+    zone_floor = {zid: (str(f) if f is not None else None) for zid, _, f in layout_zones}
+
     zone_visits = {}
-    for zid in ZONE_NAMES.keys():
+    for zid in zone_names.keys():
         visits = sum(1 for vid, zones in visitor_zones.items() if zid in zones)
         zone_visits[zid] = visits
 
-    max_visits = max(zone_visits.values()) if zone_visits else 1
+    max_visits = max(zone_visits.values()) if zone_visits else 1  # normalised per floor view
     if max_visits == 0:
         max_visits = 1
 
     zones = []
-    for zid, zname in ZONE_NAMES.items():
+    for zid, zname in zone_names.items():
         visits = zone_visits[zid]
         normalised = round((visits / max_visits) * 100, 1)
         dwells = zone_dwells.get(zid, [])
@@ -129,7 +155,8 @@ async def get_heatmap(
             visits=visits,
             conversions=conversions,
             abandonment=abandons,
-            revenue_influence=round(revenue, 2)
+            revenue_influence=round(revenue, 2),
+            floor=zone_floor.get(zid)
         ))
 
     from config import get_store_info
@@ -141,5 +168,7 @@ async def get_heatmap(
         store_location=store_info.get("store_location"),
         city=store_info.get("city"),
         zones=zones,
-        data_confidence=confidence_data
+        data_confidence=confidence_data,
+        floors=all_floors,
+        floor=floor
     )

@@ -21,6 +21,9 @@ class EventMetadata(BaseModel):
     session_seq: int = 1
     amount: Optional[float] = None
     salesperson_id: Optional[int] = None
+    floor: Optional[str] = None      # which floor the camera sits on
+    plan_x: Optional[float] = None   # foot position on the floor plan (0-1)
+    plan_y: Optional[float] = None
 
 
 class StoreEvent(BaseModel):
@@ -122,6 +125,7 @@ class ZoneHeatmapItem(BaseModel):
     conversions: int = 0
     abandonment: int = 0
     revenue_influence: float = 0.0
+    floor: Optional[str] = None
 
 
 class HeatmapResponse(BaseModel):
@@ -131,6 +135,8 @@ class HeatmapResponse(BaseModel):
     city: Optional[str] = None
     zones: List[ZoneHeatmapItem]
     data_confidence: Optional[DataConfidence] = None
+    floors: List[str] = []
+    floor: Optional[str] = None
 
 
 
